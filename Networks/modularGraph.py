@@ -188,7 +188,7 @@ if __name__ == "__main__":
     solutions = solutions + 1
     stdoutOrigin = sys.stdout
     sys.stdout = open("Gephi_modularGraph.txt", "w")
-    print("source,target")
+    print("source target")
     print(str(solutions).replace(' [', '').replace('[', '').replace(']', ''))
 
     sys.stdout.close()
