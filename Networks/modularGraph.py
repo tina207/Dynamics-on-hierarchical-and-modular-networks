@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.random
-import sys
+import csv
 
 
 # helper to generate modules with preferential attachment
@@ -137,7 +137,7 @@ def modularGraph(shape, klist, gammalist, outdtype=np.uint8):
 
             # assigning weight like scale-free networks
             for i in range(nmodsnext):
-                nodeweights[i*Nmodnext:(i*Nmodnext+Nmodnext)] = ((np.arange(Nmodnext) +1 ).astype(float))**-alpha[level]
+                nodeweights[i*Nmodnext:(i*Nmodnext+Nmodnext)] = ((np.arange(Nmodnext) + 1).astype(float))**-alpha[level]
             # Probability of a node to be chosen
             nodeweights /= nodeweights.sum()
             cprob = nodeweights.cumsum()
@@ -181,15 +181,12 @@ def modularGraph(shape, klist, gammalist, outdtype=np.uint8):
 
 
 if __name__ == "__main__":
-    np.set_printoptions(threshold=sys.maxsize)
 
     exampleGraph = modularGraph([2,10,50], [5,10,30], [2,3,3], outdtype=np.uint8)
     solutions = np.argwhere(exampleGraph == 1)
     solutions = solutions + 1
-    stdoutOrigin = sys.stdout
-    sys.stdout = open("Gephi_modularGraph.txt", "w")
-    print("source target")
-    print(str(solutions).replace(' [', '').replace('[', '').replace(']', ''))
 
-    sys.stdout.close()
-    sys.stdout = stdoutOrigin
+    with open('Gephi_modularGraph.csv', 'w') as f:
+        writer = csv.writer(f)
+
+        writer.writerows(solutions)

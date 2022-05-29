@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.random
-import sys
+import csv
 
 
 # generate edges between modules randomly
@@ -100,7 +100,6 @@ def randomMGraph(shape, klist, outdtype=np.uint8):
 
 
 if __name__ == "__main__":
-    np.set_printoptions(threshold=sys.maxsize)
 
     # shape: 4 modules, divided further into 4 modules, each 16 nodes, total nodes: 4*4*16=256
     randomMGraph = randomMGraph([4, 4, 16], [1, 4, 13])
@@ -108,10 +107,8 @@ if __name__ == "__main__":
     # format for gephi
     solutions = np.argwhere(randomMGraph == 1)
     solutions = solutions + 1
-    stdoutOrigin = sys.stdout
-    sys.stdout = open("Gephi_randomGraph.txt", "w")
-    print("source target")
-    print(str(solutions).replace(' [', '').replace('[', '').replace(']', ''))
 
-    sys.stdout.close()
-    sys.stdout = stdoutOrigin
+    with open('Gephi_randomGraph.csv', 'w') as f:
+        writer = csv.writer(f)
+
+        writer.writerows(solutions)
