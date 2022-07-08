@@ -147,7 +147,7 @@ def modularGraph(shape, klist, gammalist, outdtype=np.uint8):
 
             # assigning weight like scale-free networks
             for i in range(nmodsnext):
-                nodeweights[i*Nmodnext:(i*Nmodnext+Nmodnext)] = ((np.arange(Nmodnext) +1 ).astype(float))**-alpha[level]
+                nodeweights[i*Nmodnext:(i*Nmodnext+Nmodnext)] = ((np.arange(Nmodnext) + 1).astype(float))**-alpha[level]
             # Probability of a node to be chosen
             nodeweights /= nodeweights.sum()
             cprob = nodeweights.cumsum()
@@ -191,7 +191,6 @@ def modularGraph(shape, klist, gammalist, outdtype=np.uint8):
 
 
 if __name__ == "__main__":
-    np.set_printoptions(threshold=sys.maxsize)
 
     modGraph = modularGraph([2,10,50], [5,10,30], [2,3,3], outdtype=np.uint8)
 

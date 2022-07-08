@@ -110,7 +110,6 @@ def randomMGraph(shape, klist, outdtype=np.uint8):
 
 
 if __name__ == "__main__":
-    np.set_printoptions(threshold=sys.maxsize)
 
     # shape: 4 modules, divided further into 4 modules, each 16 nodes, total nodes: 4*4*16=256
     randomMGraph = randomMGraph([4, 4, 16], [1, 4, 13])
@@ -135,3 +134,4 @@ if __name__ == "__main__":
     print(adjList)
     sys.stdout.close()
     sys.stdout = stdoutOrigin
+   
