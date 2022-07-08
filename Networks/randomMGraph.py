@@ -1,6 +1,16 @@
 import numpy as np
 import numpy.random
-import csv
+import sys
+from collections import defaultdict
+
+# turn adjacency matrix to adjacency list
+def convert(a):
+    adjList = defaultdict(list)
+    for i in range(len(a)):
+        for j in range(len(a[i])):
+                       if a[i][j]== 1:
+                           adjList[i].append(j)
+    return adjList
 
 
 # generate edges between modules randomly
@@ -105,10 +115,23 @@ if __name__ == "__main__":
     randomMGraph = randomMGraph([4, 4, 16], [1, 4, 13])
 
     # format for gephi
+    '''
     solutions = np.argwhere(randomMGraph == 1)
     solutions = solutions + 1
+    stdoutOrigin = sys.stdout
+    sys.stdout = open("Gephi_randomGraph.txt", "w")
+    print("source target")
+    print(str(solutions).replace(' [', '').replace('[', '').replace(']', ''))
+    sys.stdout.close()
+    sys.stdout = stdoutOrigin
+    '''
 
-    with open('Gephi_randomGraph.csv', 'w') as f:
-        writer = csv.writer(f)
-
-        writer.writerows(solutions)
+    # format for simulation
+    stdoutOrigin = sys.stdout
+    sys.stdout = open("../randomGraph.txt", "w")
+    adjDict = convert(randomMGraph)
+    adjList = list(adjDict.values())
+    print(adjList)
+    sys.stdout.close()
+    sys.stdout = stdoutOrigin
+   

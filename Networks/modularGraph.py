@@ -1,6 +1,16 @@
 import numpy as np
 import numpy.random
-import csv
+import sys
+from collections import defaultdict
+
+# turn adjacency matrix to adjacency list
+def convert(a):
+    adjList = defaultdict(list)
+    for i in range(len(a)):
+        for j in range(len(a[i])):
+                       if a[i][j]== 1:
+                           adjList[i].append(j)
+    return adjList
 
 
 # helper to generate modules with preferential attachment
@@ -182,11 +192,25 @@ def modularGraph(shape, klist, gammalist, outdtype=np.uint8):
 
 if __name__ == "__main__":
 
-    exampleGraph = modularGraph([2,10,50], [5,10,30], [2,3,3], outdtype=np.uint8)
-    solutions = np.argwhere(exampleGraph == 1)
+    modGraph = modularGraph([2,10,50], [5,10,30], [2,3,3], outdtype=np.uint8)
+
+    '''
+    # format for Gephi
+    solutions = np.argwhere(modGraph == 1)
     solutions = solutions + 1
+    stdoutOrigin = sys.stdout
+    sys.stdout = open("Gephi_modularGraph.txt", "w")
+    print("source target")
+    print(str(solutions).replace(' [', '').replace('[', '').replace(']', ''))
+    sys.stdout.close()
+    sys.stdout = stdoutOrigin
+    '''
 
-    with open('Gephi_modularGraph.csv', 'w') as f:
-        writer = csv.writer(f)
-
-        writer.writerows(solutions)
+    # format for simulation
+    stdoutOrigin = sys.stdout
+    sys.stdout = open("../modularGraph.txt", "w")
+    adjDict = convert(modGraph)
+    adjList = list(adjDict.values())
+    print(adjList)
+    sys.stdout.close()
+    sys.stdout = stdoutOrigin
