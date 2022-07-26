@@ -8,15 +8,15 @@ from numba.typed import List
 dt = 0.01
 sqdt = np.sqrt(dt)
 t0 = 0
-t_end = 60 * 3
-t_steps = int((t_end - t0) / dt + 1)
+t_end = 60*5
+t_steps = int((t_end - t0) / dt)
 
-Delta = 1
-sigma = 1
+Delta = 0.5
+sigma = 0.5
 Delta_sq = Delta * Delta
 
 #network
-with open('ERgraph.txt') as f:
+with open('modularGraph.txt') as f:
     neighbors_vector = f.read()
 
 neighbors_vector = ast.literal_eval(neighbors_vector)
@@ -24,8 +24,9 @@ n_length = len(neighbors_vector)
 
 
 @jit(nopython=True)
-def do_simulation(network, omega, a, J, x=np.zeros((n_length, t_steps)), y=np.zeros((n_length, t_steps))):
+def do_simulation(network, omega, a, J, J_int, x=np.zeros((n_length, t_steps)), y=np.zeros((n_length, t_steps))):
     N = len(network)
+
 
     if np.all(x) == 0:
         # random initial values if there is none given
@@ -48,7 +49,7 @@ def do_simulation(network, omega, a, J, x=np.zeros((n_length, t_steps)), y=np.ze
             n_neighs = len(network[i])
             x_sq = x[i, k - 1] * x[i, k - 1]
             y_sq = y[i, k - 1] * y[i, k - 1]
-            term = J * (1 - x_sq - y_sq)
+            term = J_int * (1 - x_sq - y_sq)
 
             # noise
             r_gaussian = np.random.standard_normal(2)
@@ -81,10 +82,6 @@ if __name__ == "__main__":
     for element in neighbors_vector:
         neighbors.append(element)
 
-    x_new, y_new, r = do_simulation(network=neighbors, omega=1, a=0, J=10)
 
-    plt.title("sigma=1, a=0")
-    plt.xlabel("t")
-    plt.ylabel("R")
-    plt.plot(r)
-    plt.show()
+    x_new, y_new, r = do_simulation(network=neighbors, omega=1, a=0, J=0, J_int=1)
+
