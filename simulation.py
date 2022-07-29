@@ -40,10 +40,12 @@ def do_simulation(network, omega, a, J, J_int, x=np.zeros((n_length, t_steps)), 
         z = 0
 
         for i in range(N):
-            coup = 0
+            coup_x = 0
+            coup_y = 0
 
             for neigh in network[i]:
-                coup += x[neigh, k - 1]
+                coup_x += x[neigh, k - 1]
+                coup_y += y[neigh, k - 1]
 
             # variables
             n_neighs = len(network[i])
@@ -57,10 +59,10 @@ def do_simulation(network, omega, a, J, J_int, x=np.zeros((n_length, t_steps)), 
             # neural mass models
             x[i, k] = ((0.5 * (
                     -2 * omega * y[i, k - 1] - x[i, k - 1] * (Delta_sq - term) - a * (1 - x_sq + y_sq))) + J * (
-                               coup - x[i, k - 1] * n_neighs) / n_neighs) * dt + sigma * r_gaussian[0] * sqdt + x[
+                               coup_x - x[i, k - 1] * n_neighs) / n_neighs) * dt + sigma * r_gaussian[0] * sqdt + x[
                           i, k - 1]
             y[i, k] = ((0.5 * (2 * omega * x[i, k - 1] - y[i, k - 1] * (Delta_sq - term) + 2 * a * x[i, k - 1] * y[
-                i, k - 1])) + J * (coup - y[i, k - 1] * n_neighs) / n_neighs) * dt + sigma * r_gaussian[1] * sqdt + y[
+                i, k - 1])) + J * (coup_y - y[i, k - 1] * n_neighs) / n_neighs) * dt + sigma * r_gaussian[1] * sqdt + y[
                           i, k - 1]
 
             z += complex(x[i, k], y[i, k])
