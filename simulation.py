@@ -19,7 +19,7 @@ sigma = 0.5
 Delta_sq = Delta * Delta
 
 #network
-with open('modularGraph.txt') as f:
+with open('ERgraph.txt') as f:
     neighbors_vector = f.read()
 
 neighbors_vector = ast.literal_eval(neighbors_vector)
@@ -27,18 +27,21 @@ n_length = len(neighbors_vector)
 
 
 @jit(nopython=True)
-def do_simulation(network, omega, a, J, J_int, x=np.zeros((n_length, t_steps)), y=np.zeros((n_length, t_steps))):
+def do_simulation(network, omega, a, J, J_int):
     N = len(network)
 
-    xr = np.random.rand(N)
-    yr = np.random.rand(N)
+    # relaxation time for simulation
+    x_relax = np.random.rand(N)
+    y_relax = np.random.rand(N)
 
     # Radius of polar coordinates
     R = np.zeros(t_steps)
+    # Global phase coherence (obtained from Kuramoto order parameter)
+    r_global = np.zeros(t_steps)
 
     for k in range(1, t_relax_steps):
-        x_old = xr
-        y_old = yr
+        x_old = x_relax
+        y_old = y_relax
 
         for i in range(N):
             coup_x = 0
@@ -57,29 +60,37 @@ def do_simulation(network, omega, a, J, J_int, x=np.zeros((n_length, t_steps)), 
             # noise
             r_gaussian = np.random.standard_normal(2)
 
-            # neural mass models
-            xr[i] = ((0.5 * (
+            # neural mass models for every n (we do not have to save every timestep)
+            x_relax[i] = ((0.5 * (
                     -2 * omega * y_old[i] - x_old[i] * (Delta_sq - term) - a * (1 - x_sq + y_sq))) + J * (
                                coup_x - x_old[i] * n_neighs) / n_neighs) * dt + sigma * r_gaussian[0] * sqdt + x_old[
                           i]
-            yr[i] = ((0.5 * (2 * omega * x_old[i] - y_old[i] * (Delta_sq - term) + 2 * a * x_old[i] * y_old[
+            y_relax[i] = ((0.5 * (2 * omega * x_old[i] - y_old[i] * (Delta_sq - term) + 2 * a * x_old[i] * y_old[
                 i])) + J * (coup_y - y_old[i] * n_neighs) / n_neighs) * dt + sigma * r_gaussian[1] * sqdt + y_old[
                           i]
 
-    # random initial values if there is none given
-    x[:, 0] = xr
-    y[:, 0] = yr 
+    # Initialize
+    x = np.zeros((N, t_steps))
+    y = np.zeros((N, t_steps))
 
-    #Initialize average Z
-    z = xr + 1.0j * yr
+    # Relaxed values as initial values for real simulation
+    x[:, 0] = x_relax
+    y[:, 0] = y_relax
+
+    # Initialize average Z
+    z = x_relax + 1.0j * y_relax
     z = z.mean() 
     R[0] = abs(z)
 
-    #TODO!!! Initialize average Kuramoto
+    # Initialize average Kuramoto
+    psi = np.arctan2(y_relax, x_relax)
+    kuramoto = np.exp(1.0j * psi)
+    kuramoto = kuramoto.mean()
+    r_global[0] = abs(kuramoto)
 
     for k in range(1, t_steps):
-        z = 0
-        kuramoto =0.0
+        z = 0.0
+        kuramoto = 0.0
 
         for i in range(N):
             coup_x = 0
@@ -93,12 +104,14 @@ def do_simulation(network, omega, a, J, J_int, x=np.zeros((n_length, t_steps)), 
             n_neighs = len(network[i])
             x_sq = x[i, k - 1] * x[i, k - 1]
             y_sq = y[i, k - 1] * y[i, k - 1]
+            # J_int is internal scaling factor
             term = J_int * (1 - x_sq - y_sq)
 
             # noise
             r_gaussian = np.random.standard_normal(2)
 
             # neural mass models
+            # J is global scaling factor
             x[i, k] = ((0.5 * (
                     -2 * omega * y[i, k - 1] - x[i, k - 1] * (Delta_sq - term) - a * (1 - x_sq + y_sq))) + J * (
                                coup_x - x[i, k - 1] * n_neighs) / n_neighs) * dt + sigma * r_gaussian[0] * sqdt + x[
@@ -107,23 +120,23 @@ def do_simulation(network, omega, a, J, J_int, x=np.zeros((n_length, t_steps)), 
                 i, k - 1])) + J * (coup_y - y[i, k - 1] * n_neighs) / n_neighs) * dt + sigma * r_gaussian[1] * sqdt + y[
                           i, k - 1]
 
-            z += complex(x[i, k], y[i, k])
 
-            psi = np.arctan2(y[i,k], x[i,k])
+            z += x[i, k] + 1.0j * y[i, k]
+            psi = np.arctan2(y[i, k], x[i, k])
             kuramoto += np.exp(1.0j * psi)
 
         z /= N
         kuramoto /= N
 
-        #TODO!!!!
-        #R[k] = abs(z)
-        R[k] = abs(kuramoto)
-    return x, y, R
+        R[k] = abs(z)
+        r_global[k] = abs(kuramoto)
+
+    return x, y, R, r_global
 
 
 if __name__ == "__main__":
-
-    with open('ERgraph.txt') as f:
+    '''
+    with open('modularGraph.txt') as f:
         neighbors_vector = f.read()
 
     # numba can only work with lists
@@ -133,9 +146,8 @@ if __name__ == "__main__":
         neighbors.append(element)
 
 
-    x_new, y_new, r = do_simulation(network=neighbors, omega=1, a=0.95, J=0, J_int=1)
-
-"""
+    x_new, y_new, r_new, r_global_new = do_simulation(network=neighbors, omega=1, a=0.95, J=0, J_int=1)
+ 
     plt.figure()
     for j in range(5):
         plt.plot(np.arange(y_new[0,:].size), x_new[j, :]*x_new[j, :] +  y_new[j, :]*y_new[j, :] )
@@ -146,4 +158,4 @@ if __name__ == "__main__":
     plt.show()
 
     print(r.mean())
-"""
+    '''

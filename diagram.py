@@ -1,4 +1,4 @@
-from simulation import do_simulation, t_steps
+from simulation import do_simulation
 import matplotlib.pyplot as plt
 import numpy as np
 import ast
@@ -6,7 +6,7 @@ from numba.typed import List
 
 J_list = np.linspace(0, 2, 20)
 
-with open('modularGraph.txt') as f:
+with open('ERgraph.txt') as f:
     neighbors_vector = f.read()
 
 # numba can only work with lists
@@ -20,29 +20,29 @@ r_avg = []
 
 # networks
 for J in J_list:
-    X, Y, R = do_simulation(network=neighbors, omega=1, a=0.95, J=J, J_int=1)
+
+    X, Y, R, _ = do_simulation(network=neighbors, omega=1, a=0.5, J=J, J_int=1)
     r.append(R)
-    np.save("X_a=0.95", X)
-    np.save("Y_a=0.95", Y)
-    np.save("r_a=0.95", r)
-    r_avg.append(np.average(R[5000:]))
+    np.save("X_a=0.5", X)
+    np.save("Y_a=0.5", Y)
+    np.save("r_a=0.5", r)
+    r_avg.append(R.mean())
 
 
 '''
 #single oscillator
 for J in J_list:
-    X, Y, _ = do_simulation(network=neighbors, omega=1, a=1.2, J=0, J_int=J)
+    X, Y, _, _ = do_simulation(network=neighbors, omega=1, a=1.2, J=0, J_int=J)
     R = np.sqrt(X[-1]**2 + Y[-1]**2)
     np.save("X_singleO_a=1.2", X)
     np.save("Y_singleO_a=1.2", Y)
     np.save("R_singleO_a=1.2", R)
-    r_avg.append(np.average(R[5000:]))
+    r_avg.append(R.mean())
 '''
 
-plt.title("sigma=0.5, a=0.95, Delta=0.5, omega=1")
-plt.xlabel("J")
-plt.ylabel("r_avg")
+plt.title("sigma=0.5, a=0.5, Delta=0.5, omega=1", fontsize=12)
+plt.xlabel("J", fontsize=11)
+plt.ylabel("r̃", rotation=90, fontsize=11)
 plt.plot(J_list, r_avg, color="red", marker="o")
-plt.legend()
 plt.show()
 

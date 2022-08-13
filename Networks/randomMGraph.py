@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.random
 import sys
+import csv
 from collections import defaultdict
 
 # turn adjacency matrix to adjacency list
@@ -111,19 +112,17 @@ def randomMGraph(shape, klist, outdtype=np.uint8):
 
 if __name__ == "__main__":
 
-    # shape: 4 modules, divided further into 4 modules, each 16 nodes, total nodes: 4*4*16=256
-    randomMGraph = randomMGraph([4, 4, 16], [1, 4, 13])
+    # shape: 2 modules, divided further into 10 modules, each 50 nodes, total nodes 2*10*50=1000
+    randomMGraph = randomMGraph([2,5,100], [2,13,20])
+    numpy.set_printoptions(threshold=sys.maxsize)
 
-    # format for gephi
     '''
+    # format for gephi
     solutions = np.argwhere(randomMGraph == 1)
     solutions = solutions + 1
-    stdoutOrigin = sys.stdout
-    sys.stdout = open("Gephi_randomGraph.txt", "w")
-    print("source target")
-    print(str(solutions).replace(' [', '').replace('[', '').replace(']', ''))
-    sys.stdout.close()
-    sys.stdout = stdoutOrigin
+    with open('Gephi_randomGraph.csv', 'w') as f:
+        writer = csv.writer(f)
+        writer.writerows(solutions)
     '''
 
     # format for simulation
@@ -134,4 +133,3 @@ if __name__ == "__main__":
     print(adjList)
     sys.stdout.close()
     sys.stdout = stdoutOrigin
-   

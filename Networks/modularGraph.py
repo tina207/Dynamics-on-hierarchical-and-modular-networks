@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.random
 import sys
+import csv
 from collections import defaultdict
 
 # turn adjacency matrix to adjacency list
@@ -192,20 +193,18 @@ def modularGraph(shape, klist, gammalist, outdtype=np.uint8):
 
 if __name__ == "__main__":
 
-    modGraph = modularGraph([2,10,50], [5,10,30], [2,3,3], outdtype=np.uint8)
+    modGraph = modularGraph([2,5,100], [2,13,20], [2,3,3], outdtype=np.uint8)
+    numpy.set_printoptions(threshold=sys.maxsize)
 
     '''
     # format for Gephi
     solutions = np.argwhere(modGraph == 1)
     solutions = solutions + 1
-    stdoutOrigin = sys.stdout
-    sys.stdout = open("Gephi_modularGraph.txt", "w")
-    print("source target")
-    print(str(solutions).replace(' [', '').replace('[', '').replace(']', ''))
-    sys.stdout.close()
-    sys.stdout = stdoutOrigin
-    '''
+    with open('Gephi_modularGraph.csv', 'w') as f:
+        writer = csv.writer(f)
+        writer.writerows(solutions)
 
+    '''
     # format for simulation
     stdoutOrigin = sys.stdout
     sys.stdout = open("../modularGraph.txt", "w")
