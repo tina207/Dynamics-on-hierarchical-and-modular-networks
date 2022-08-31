@@ -136,7 +136,7 @@ def do_simulation(network, omega, a, J, J_int):
 
 if __name__ == "__main__":
     '''
-    with open('modularGraph.txt') as f:
+    with open('CHM.txt') as f:
         neighbors_vector = f.read()
 
     # numba can only work with lists

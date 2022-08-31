@@ -113,21 +113,19 @@ def randomMGraph(shape, klist, outdtype=np.uint8):
 if __name__ == "__main__":
 
     # shape: 2 modules, divided further into 10 modules, each 50 nodes, total nodes 2*10*50=1000
-    randomMGraph = randomMGraph([2,5,100], [2,13,20])
+    randomMGraph = randomMGraph([2, 20, 25], [2, 15, 20])
     numpy.set_printoptions(threshold=sys.maxsize)
 
-    '''
     # format for gephi
     solutions = np.argwhere(randomMGraph == 1)
     solutions = solutions + 1
-    with open('Gephi_randomGraph.csv', 'w') as f:
+    with open('Gephi_RHM.csv', 'w') as f:
         writer = csv.writer(f)
         writer.writerows(solutions)
-    '''
 
     # format for simulation
     stdoutOrigin = sys.stdout
-    sys.stdout = open("../randomGraph.txt", "w")
+    sys.stdout = open("../RHM.txt", "w")
     adjDict = convert(randomMGraph)
     adjList = list(adjDict.values())
     print(adjList)

@@ -193,21 +193,19 @@ def modularGraph(shape, klist, gammalist, outdtype=np.uint8):
 
 if __name__ == "__main__":
 
-    modGraph = modularGraph([2,5,100], [2,13,20], [2,3,3], outdtype=np.uint8)
+    modGraph = modularGraph([2, 20, 25], [2, 15, 20], [1.7, 2, 3], outdtype=np.uint8)
     numpy.set_printoptions(threshold=sys.maxsize)
 
-    '''
     # format for Gephi
     solutions = np.argwhere(modGraph == 1)
     solutions = solutions + 1
-    with open('Gephi_modularGraph.csv', 'w') as f:
+    with open('Gephi_CHM.csv', 'w') as f:
         writer = csv.writer(f)
         writer.writerows(solutions)
 
-    '''
     # format for simulation
     stdoutOrigin = sys.stdout
-    sys.stdout = open("../modularGraph.txt", "w")
+    sys.stdout = open("../CHM.txt", "w")
     adjDict = convert(modGraph)
     adjList = list(adjDict.values())
     print(adjList)
